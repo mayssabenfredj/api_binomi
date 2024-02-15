@@ -27,19 +27,37 @@ export class AnnoncesService {
     }
       }
 
-  findAll() {
-    return `This action returns all annonces`;
+  async findAll() {
+    const annonces = await this.annonceModel.find()
+    if (annonces) {
+      return annonces
+    } else {
+      return {message : 'No Announce for now.'}
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} annonce`;
+  async findOne(id: number) {
+     const annonce = await this.annonceModel.findOne({ _id: id });
+     if (annonce) {
+       return annonce;
+     } else {
+       return { message: 'No Announce Not found .' };
+     }
   }
 
   update(id: number, updateAnnonceDto: UpdateAnnonceDto) {
     return `This action updates a #${id} annonce`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} annonce`;
+  async remove(id: number) {
+ const deleted = await this.annonceModel.deleteOne({
+   _id: id,
+ });
+  if (deleted) {
+    return { message: 'Annonce deleted.' };
+  } else {
+    return { message: 'Annonce not found.' };
+  }
+
   }
 }
