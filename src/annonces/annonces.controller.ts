@@ -1,15 +1,38 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { diskStorage } from 'multer';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { AnnoncesService } from './annonces.service';
 import { CreateAnnonceDto } from './dto/create-annonce.dto';
 import { UpdateAnnonceDto } from './dto/update-annonce.dto';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { v4 as uuidv4 } from 'uuid';
+
 
 @Controller('annonces')
 export class AnnoncesController {
   constructor(private readonly annoncesService: AnnoncesService) {}
 
   @Post()
-  create(@Body() createAnnonceDto: CreateAnnonceDto) {
-    return this.annoncesService.create(createAnnonceDto);
+  @UseInterceptors(
+    FilesInterceptor('photos', 10,{
+      storage: diskStorage({
+        destination: './uploads/annoncesImage',
+        filename: (req, file, cb) => {
+          const filename = file.originalname + uuidv4();
+          const extension = file.originalname.split('.').pop();
+          cb(null, `${filename}.${extension}`);
+        },
+      }),
+    }),
+  )
+  create(@Body() createAnnonceDto: CreateAnnonceDto, @UploadedFiles() photos) {
+    const photoPaths = photos.map((photo) => photo.filename);
+    console.log(photoPaths);
+    const photo = photoPaths;
+    return this.annoncesService.create(createAnnonceDto,photo);
+  }
+  @Get('search')
+  searchAnnonces(@Query('keyword') keyword: string) {
+    return this.annoncesService.searchAnnonces(keyword);
   }
 
   @Get()
@@ -20,6 +43,10 @@ export class AnnoncesController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.annoncesService.findOne(+id);
+  }
+  @Get(':token')
+  findAnnonceByUser(@Param('token') token: string) {
+    return this.annoncesService.findAnnonceByUser(token);
   }
 
   @Patch(':id')

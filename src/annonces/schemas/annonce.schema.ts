@@ -8,6 +8,10 @@ import { Document } from 'mongoose';
 export class Annonce extends Document {
   @Prop()
   title: string;
+  @Prop()
+  type: string;
+  @Prop()
+  gender: string;
 
   @Prop()
   photo: Array<string>;
@@ -21,8 +25,8 @@ export class Annonce extends Document {
   @Prop()
   homeFacilities: Array<string>;
 
-  @Prop({ type: Object })
-  nearest: Record<string, any>;
+  @Prop()
+  nearest: Array<string>;
 
   @Prop()
   description: string;

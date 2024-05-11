@@ -3,6 +3,13 @@ import { IsString, IsNumber, IsArray, IsObject, IsDate } from 'class-validator';
 export class CreateAnnonceDto {
   @IsString()
   title: string;
+
+  @IsString()
+  type: string;
+
+  @IsString()
+  gender: string;
+
   @IsNumber()
   roomNumber: number;
 
@@ -15,8 +22,8 @@ export class CreateAnnonceDto {
   @IsArray()
   homeFacilities: string[];
 
-  @IsObject()
-  nearest: Record<string, any>;
+  @IsArray()
+  nearest: string[];
 
   @IsString()
   description: string;
