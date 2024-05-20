@@ -7,6 +7,10 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { validateToken } from 'src/shared/shared.service';
+import { Request, Response } from 'express';
+import { join } from 'path';
+import * as path from 'path';
+import * as fs from 'fs';
 
 @Injectable()
 export class AnnoncesService {
@@ -17,9 +21,12 @@ export class AnnoncesService {
     private annonceModel: Model<Annonce>,
   ) {}
   async create(createAnnonceDto: CreateAnnonceDto, photos: string[]) {
+    createAnnonceDto.price = parseFloat(createAnnonceDto.price.toString());
+    
     const AnnonceCreated = await this.annonceModel.create({
       ...createAnnonceDto,
       photo: photos,
+      
     });
     if (AnnonceCreated) {
       return { message: 'Annonce created.' };
@@ -37,7 +44,7 @@ export class AnnoncesService {
     }
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     const annonce = await this.annonceModel.findOne({ _id: id });
     if (annonce) {
       return annonce;
@@ -45,7 +52,12 @@ export class AnnoncesService {
       return { message: 'No Announce Not found .' };
     }
   }
-
+  async findAnnonceImage(res: Response, imageName: string) {
+    if (typeof imageName !== 'string') {
+      return res.status(400).send('Invalid image name');
+    }
+    return res.sendFile(join(process.cwd(), 'uploads/annoncesImage', imageName));
+  }
   async findAnnonceByUser(token: string) {
     const data = await validateToken(this.jwtService, token);
     const annonces = await this.annonceModel.find({ user_id: data['id'] });

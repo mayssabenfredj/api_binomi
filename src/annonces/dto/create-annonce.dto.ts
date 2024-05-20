@@ -10,19 +10,19 @@ export class CreateAnnonceDto {
   @IsString()
   gender: string;
 
-  @IsNumber()
+  
   roomNumber: number;
 
-  @IsNumber()
+  
   placeInRoom: number;
 
-  @IsNumber()
+  
   placeDisponible: number;
 
-  @IsArray()
+  
   homeFacilities: string[];
 
-  @IsArray()
+  
   nearest: string[];
 
   @IsString()
@@ -34,7 +34,7 @@ export class CreateAnnonceDto {
   @IsString()
   dateDisponibilite: string;
 
-  @IsNumber()
+  
   price: number;
 
   @IsString()

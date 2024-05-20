@@ -1,5 +1,5 @@
 import { diskStorage } from 'multer';
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors, UploadedFiles } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors, UploadedFiles, Res } from '@nestjs/common';
 import { AnnoncesService } from './annonces.service';
 import { CreateAnnonceDto } from './dto/create-annonce.dto';
 import { UpdateAnnonceDto } from './dto/update-annonce.dto';
@@ -13,7 +13,7 @@ export class AnnoncesController {
 
   @Post()
   @UseInterceptors(
-    FilesInterceptor('photos', 10,{
+    FilesInterceptor('photos', 10, {
       storage: diskStorage({
         destination: './uploads/annoncesImage',
         filename: (req, file, cb) => {
@@ -27,8 +27,18 @@ export class AnnoncesController {
   create(@Body() createAnnonceDto: CreateAnnonceDto, @UploadedFiles() photos) {
     const photoPaths = photos.map((photo) => photo.filename);
     console.log(photoPaths);
+createAnnonceDto.homeFacilities = Array.isArray(createAnnonceDto.homeFacilities)
+  ? createAnnonceDto.homeFacilities
+  : JSON.parse(createAnnonceDto.homeFacilities);
+createAnnonceDto.nearest = Array.isArray(createAnnonceDto.nearest)
+  ? createAnnonceDto.nearest
+      : JSON.parse(createAnnonceDto.nearest);
+    console.log(createAnnonceDto.homeFacilities);
+    console.log(createAnnonceDto.nearest);
+
+    
     const photo = photoPaths;
-    return this.annoncesService.create(createAnnonceDto,photo);
+    return this.annoncesService.create(createAnnonceDto, photo);
   }
   @Get('search')
   searchAnnonces(@Query('keyword') keyword: string) {
@@ -42,7 +52,11 @@ export class AnnoncesController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.annoncesService.findOne(+id);
+    return this.annoncesService.findOne(id);
+  }
+  @Get('images/:imageName')
+  findAnnonceImage(@Res() res, @Param('imageName') imageName: string) {
+    return this.annoncesService.findAnnonceImage(res, imageName);
   }
   @Get(':token')
   findAnnonceByUser(@Param('token') token: string) {
